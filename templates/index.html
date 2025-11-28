@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Medical Disease Predictor</title>
+  <style>
+    body {font-family: Arial, sans-serif; margin: 40px;}
+    label {display: block; margin-top: 10px;}
+    button {margin-top: 20px; padding: 10px 20px;}
+    #result {margin-top: 20px; font-weight: bold;}
+  </style>
+</head>
+<body>
+  <h1>Medical Disease Predictor</h1>
+  <form id="predict-form">
+    <label>Gender:
+      <select id="gender">
+        <option value="0">Male</option>
+        <option value="1">Female</option>
+      </select>
+    </label>
+    <label>Age: <input type="number" id="age" value="50" required></label>
+    <label>Hemoglobin: <input type="number" id="hemoglobin" value="13" step="0.1" required></label>
+    <label>RBC: <input type="number" id="rbc" value="4.5" step="0.01" required></label>
+    <label>WBC: <input type="number" id="wbc" value="8000" required></label>
+    <label>AST: <input type="number" id="ast" value="25" required></label>
+    <label>ALT: <input type="number" id="alt" value="30" required></label>
+    <label>Cholesterol: <input type="number" id="cholesterol" value="200" required></label>
+    <label>Spirometry: <input type="number" id="spirometry" value="4" step="0.01" required></label>
+    <label>Creatinine: <input type="number" id="creatinine" value="1" step="0.01" required></label>
+    <label>Glucose: <input type="number" id="glucose" value="90" required></label>
+    <label>Lipase: <input type="number" id="lipase" value="100" required></label>
+    <label>Troponin: <input type="number" id="troponin" value="0.02" step="0.001" required></label>
+    <button type="submit">Predict</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script>
+    document.getElementById('predict-form').onsubmit = async function(e) {
+      e.preventDefault();
+      const features = [
+        Number(document.getElementById('gender').value),
+        Number(document.getElementById('age').value),
+        Number(document.getElementById('hemoglobin').value),
+        Number(document.getElementById('rbc').value),
+        Number(document.getElementById('wbc').value),
+        Number(document.getElementById('ast').value),
+        Number(document.getElementById('alt').value),
+        Number(document.getElementById('cholesterol').value),
+        Number(document.getElementById('spirometry').value),
+        Number(document.getElementById('creatinine').value),
+        Number(document.getElementById('glucose').value),
+        Number(document.getElementById('lipase').value),
+        Number(document.getElementById('troponin').value),
+      ];
+      try {
+        const response = await fetch('/predict', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({'features': features})
+        });
+        const data = await response.json();
+        if (data.error) {
+          document.getElementById('result').innerText = 'Error: ' + data.error;
+        } else {
+          document.getElementById('result').innerHTML = `
+            Prediction: <b>${data.disease}</b><br>
+            Confidence: <b>${(data.confidence).toFixed(1)}%</b>
+          `;
+        }
+      } catch(err) {
+        document.getElementById('result').innerText = 'Request failed: ' + err;
+      }
+    }
+  </script>
+</body>
+</html>
